@@ -1,7 +1,30 @@
+/*
+    Written by Wyatt Turner for CSE 355 @ Arizona State University
+    Spring 2020, Dr. Ben Amor
+*/
+
 
 #include <string>
 #include <iostream>
 #include <vector>
+
+
+
+/*
+Input Buffer
+    Class handles getting characters from input file
+*/
+class InputBuffer
+{
+    std::vector<std::string> inputs = {};   //holds 'ungetted' characters when that character wasn't needed
+public:
+    InputBuffer();
+    ~InputBuffer();
+    std::string getChar();          //returns one character (however in form of string)
+    void ungetChar(std::string giveBack);   //returns character(s)
+};
+
+
 
 
 /*
@@ -13,26 +36,13 @@ Lexer
 class Lexer
 {
 
-    enum TokenType = {ID, COMMA, LEFTCURL, RIGHTCURL, LINE, SEMICOLON, ERROR, EPSILON};
+    enum TokenType {ID = 0, COMMA, LEFTCURL, RIGHTCURL, LINE, SEMICOLON, ERROR, EPSILON, END_OF_FILE};
 
-
-    /*
-    Input Buffer
-        Class handles getting characters from input file
-    */
-    class InputBuffer
-    {
-        std::vector<int> inputs = {};   //holds 'ungetted' characters when that character wasn't needed
-
-    public:
-        inputBuffer();
-        std::string getChar();          //returns one character (however in form of string)
-        void ungetChar(std::string giveBack);   //returns character(s)
-    };
-
-
+    InputBuffer* buffer;
 
     void consumeSpace();
+    bool isSpace();
+    bool isAlphaNum();
 
 public:
 
@@ -43,9 +53,10 @@ public:
         TokenType type;
         int line_num;
 
-    };
+    }Token;
     
     Lexer();
+    ~Lexer();
     Token getToken();
     void  returnToken(Token token);
 
