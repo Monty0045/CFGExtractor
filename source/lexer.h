@@ -8,7 +8,7 @@
 #include <iostream>
 #include <vector>
 
-
+#pragma once
 
 /*
 Input Buffer
