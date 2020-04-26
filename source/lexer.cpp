@@ -19,21 +19,26 @@ using namespace std;
 */
 std::string InputBuffer::getChar()
 {
-    char tempChar;
+    string toReturn;
 
     if(inputs.size() == 0)    //if input buffer empty
     {
+        char tempChar;
         cin.get(tempChar);  //puts character from input stream into tempChar
-        string toReturn = "" + tempChar;
-        return toReturn;
+        toReturn = "" + tempChar;
+
+        if(tempChar == EOF)
+        {
+            toReturn = "EOF";
+        }
     }
     else    //characters present in input buffer
     {
-       string toReturn = inputs[inputs.size()-1]; //gets last element
+       toReturn = inputs[inputs.size()-1]; //gets last element
        inputs.pop_back();                         //decreases vector by 1
-       return toReturn; 
     }
     
+    return toReturn;
 }
 
 /*
@@ -42,6 +47,19 @@ std::string InputBuffer::getChar()
 void InputBuffer::ungetChar(std::string giveBack)
 {
     inputs.push_back(giveBack);
+}
+
+bool InputBuffer::isEndOfFile()
+{
+    if(buffer.size() > 0)
+    {
+        return false;
+    }
+    else
+    {
+        return cin.eof();
+    }
+    
 }
 
 /*
@@ -59,6 +77,10 @@ InputBuffer::~InputBuffer()
 {
 
 }
+
+
+
+
 
 
 
@@ -83,6 +105,12 @@ Lexer::~Lexer()
 */
 bool Lexer::isAlphaNum()
 {
+
+    if(buffer->isEndOfFile())
+    {
+        return false;
+    }
+
     string current = buffer->getChar();
 
     bool lowerCaseLetter = (current >= "a" && current <= "z");
@@ -113,8 +141,81 @@ bool Lexer::isAlphaNum()
 */
 Lexer::Token Lexer::getToken()
 {
-    string valuesFromInput;
+    //string valuesFromInput;
+    Token toReturn;
 
+    //if still tokens that were given back then return most recent
+    if(tokenList.size > 0)
+    {
+        toReturn = tokenList[tokenList.size() - 1];
+        tokenList.pop_back();
+        return toReturn;
+    }
+
+    //if endOfFile is reached then return that token.
+    if(buffer->isEndOfFile())
+    {
+        toReturn.line_num = line_num;
+        toReturn.type = END_OF_FILE;
+        toReturn.value = "";
+    }
+
+    
     //Perhaps call consumeSpace here?
+    consumeSpace();
 
+    string valueofToken;
+
+    if(isAlphaNum()) 
+    {
+        //int line_num = cin.
+        toReturn.value = getId();
+        toReturn.type = ID;
+        toReturn.line_num;
+    }
+    else
+    {
+        std::string inputChar = buffer->getChar();
+        switch(inputChar)
+        {
+            case ",":
+                toReturn.value = ",";
+                toReturn.type = COMMA;
+                toReturn.line_num = line_num;
+                break;
+            case "{":
+                toReturn.value = "{";
+                toReturn.type = LEFTCURL;
+                toReturn.line_num = line_num;
+                break;
+            case "{":
+                toReturn.value = "{";
+                toReturn.type = LEFTCURL;
+                toReturn.line_num = line_num;
+                break;    
+        }
+        
+    }
+    
+    
+
+}
+
+/*
+    Called when input is determined to be an ID and reads input until the end of
+    that ID.
+
+    @return ID value as a string
+*/
+std::string Lexer::getID()
+{
+
+    std::string idValue = "";
+
+    while(isAlphaNum())
+    {
+        idValue = idValue + buffer->getChar();
+    }
+    
+    return idValue;    
 }

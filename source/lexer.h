@@ -22,6 +22,7 @@ public:
     ~InputBuffer();
     std::string getChar();          //returns one character (however in form of string)
     void ungetChar(std::string giveBack);   //returns character(s)
+    bool isEndOfFile();
 };
 
 
@@ -39,8 +40,11 @@ class Lexer
     enum TokenType {ID = 0, COMMA, LEFTCURL, RIGHTCURL, LINE, SEMICOLON, ERROR, EPSILON, END_OF_FILE};
 
     InputBuffer* buffer;
+    int line_num = 1;
+    std::vector<Token>
 
     void consumeSpace();
+    std::string getID();
     bool isSpace();
     bool isAlphaNum();
 
@@ -59,5 +63,8 @@ public:
     ~Lexer();
     Token getToken();
     void  returnToken(Token token);
+
+private:
+    std::vector<Token> tokenList = {};  //used when storing 'unget' tokens
 
 };
