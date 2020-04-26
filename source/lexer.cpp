@@ -14,27 +14,54 @@ using namespace std;
 
 
 /*
+    Constructor
+*/
+InputBuffer::InputBuffer()
+{
+
+}
+
+/*
+    Destructor
+*/
+InputBuffer::~InputBuffer()
+{
+
+}
+
+
+/*
     @return is next character as a string from input
 
 */
 std::string InputBuffer::getChar()
 {
-    string toReturn;
+    string toReturn = "";
 
     if(inputs.size() == 0)    //if input buffer empty
     {
+        if(cin.eof())
+        {
+        
+            return "EOF";
+        }
+
         char tempChar;
         cin.get(tempChar);  //puts character from input stream into tempChar
-        toReturn = "" + tempChar;
 
-        if(tempChar == EOF)
+        if( int(tempChar) == 10 || int(tempChar) == 0) //if new line character, or null charcter (FIGURE OUT WHY THIS HAPPENS)
         {
-            toReturn = "EOF";
+            return "\n";
         }
+
+        //cout << int(tempChar) << " the character" << endl;
+        toReturn = toReturn + tempChar;
+
     }
     else    //characters present in input buffer
     {
        toReturn = inputs[inputs.size()-1]; //gets last element
+       
        inputs.pop_back();                  //decreases vector by 1
     }
     
@@ -49,10 +76,13 @@ void InputBuffer::ungetChar(std::string giveBack)
     inputs.push_back(giveBack);
 }
 
+
+
 bool InputBuffer::isEndOfFile()
 {
-    if(buffer.size() > 0)
+    if(inputs.size() > 0)
     {
+        if(inputs[inputs.size() - 1] == "EOF") return true;
         return false;
     }
     else
@@ -60,22 +90,6 @@ bool InputBuffer::isEndOfFile()
         return cin.eof();
     }
     
-}
-
-/*
-    Constructor
-*/
-InputBuffer::InputBuffer()
-{
-
-}
-
-/*
-    Destructor
-*/
-InputBuffer::~InputBuffer()
-{
-
 }
 
 
@@ -131,6 +145,23 @@ bool Lexer::isAlphaNum()
 }
 
 
+void Lexer::consumeSpace()
+{
+    std::string inputChar = buffer->getChar();
+    //std::string newLineString = "" + (char)10;
+
+    while(inputChar == " " || inputChar == "\n")
+    {
+        if(inputChar == "\n")
+        {
+            line_num++;
+        }
+
+        inputChar = buffer->getChar(); //consume next space
+    }
+
+    buffer->ungetChar(inputChar);
+}
 
 /*
     This method grabs the next Token from an input, if unrecognized as any defined
@@ -144,33 +175,36 @@ Lexer::Token Lexer::getToken()
     //string valuesFromInput;
     Token toReturn;
 
+
+    consumeSpace();
+
+    //if endOfFile is reached then return EOF token.
+    if(buffer->isEndOfFile())
+    {
+        toReturn.line_num = line_num;
+        toReturn.type = END_OF_FILE;
+        toReturn.value = "EOF";
+        return toReturn;
+    }
+
     //if still tokens that were given back then return most recent
-    if(tokenList.size > 0)
+    if(tokenList.size() > 0)
     {
         toReturn = tokenList[tokenList.size() - 1];
         tokenList.pop_back();
         return toReturn;
     }
 
-    //if endOfFile is reached then return that token.
-    if(buffer->isEndOfFile())
-    {
-        toReturn.line_num = line_num;
-        toReturn.type = END_OF_FILE;
-        toReturn.value = "";
-    }
 
-    consumeSpace();
-
-    if(isAlphaNum()) //Incase of ID (Rules/Tokens defined in grammer) or EPSILON
+    if(isAlphaNum()) //Incase of ID (Rules/Terminals defined in grammer) or EPSILON
     {
         //int line_num = cin.
-        toReturn.value = getId();
+        toReturn.value = getID();
         toReturn.type = ID;
-        toReturn.line_num;
+        toReturn.line_num = line_num;
 
 
-        if(toReturn.value = "EPSILON")
+        if(toReturn.value == "EPSILON")
         {
             toReturn.type = EPSILON;
         }
@@ -181,35 +215,32 @@ Lexer::Token Lexer::getToken()
         toReturn.line_num = line_num;
         toReturn.value = inputChar;
 
-        switch(inputChar)
-        {
-            case ",":
-                toReturn.type = COMMA;
-                break;
-            case "{":
-                toReturn.type = LEFTCURL;
-                break;
-            case "}":
-                toReturn.type = RIGHTCURL;
-                break;
-            case "|":
-                toReturn.type = LINE;
-                break;
-            case ";":
-                toReturn.type = SEMICOLON;
-                break;
-            case "EOF":
-                toReturn.type = END_OF_FILE;
-                break;
-            default:
-                toReturn.type = ERROR;
-                break;   
-        }
+
+        if(inputChar == ",") toReturn.type = COMMA;
+        else if(inputChar == "{") toReturn.type = LEFTCURL;
+        else if(inputChar == "}") toReturn.type = RIGHTCURL;
+        else if(inputChar == "|") toReturn.type = LINE;
+        else if(inputChar == ";") toReturn.type = SEMICOLON;
+        else if(inputChar == "EOF") toReturn.type = END_OF_FILE;
+        else toReturn.type = ERROR; //unrecognized symbol
+        
         
     }
     
-    
+    return toReturn;
 
+}
+
+/*
+    Given a token, will add it back into the stack of 'unget' tokens which can be grabbed
+    again later.
+
+    @param Token to return to lexer until needed later.
+
+*/
+void Lexer::ungetToken(Token token)
+{
+    tokenList.push_back(token);
 }
 
 /*

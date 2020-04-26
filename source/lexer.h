@@ -39,9 +39,10 @@ class Lexer
 
     enum TokenType {ID = 0, COMMA, LEFTCURL, RIGHTCURL, LINE, SEMICOLON, ERROR, EPSILON, END_OF_FILE};
 
+    struct Token;
     InputBuffer* buffer;
     int line_num = 1;
-    std::vector<Token>
+    std::vector<Token> tokenList;
 
     void consumeSpace();
     std::string getID();
@@ -62,9 +63,7 @@ public:
     Lexer();
     ~Lexer();
     Token getToken();
-    void  returnToken(Token token);
-
-private:
-    std::vector<Token> tokenList = {};  //used when storing 'unget' tokens
+    void  ungetToken(Token token);
+   
 
 };
