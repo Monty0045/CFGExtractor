@@ -37,7 +37,7 @@ Lexer
 class Lexer
 {
 
-    enum TokenType {ID = 0, COMMA, LEFTCURL, RIGHTCURL, LINE, SEMICOLON, ERROR, EPSILON, END_OF_FILE};
+    enum TokenType {ID = 0, COMMA, LEFTCURL, RIGHTCURL, LINE, SEMICOLON, ERROR, EPSILON, END_OF_FILE, RULES, TERMINALS};
 
     struct Token;
     InputBuffer* buffer;

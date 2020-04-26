@@ -204,9 +204,18 @@ Lexer::Token Lexer::getToken()
         toReturn.line_num = line_num;
 
 
+        //This handles the three reserved words defined in program
         if(toReturn.value == "EPSILON")
         {
             toReturn.type = EPSILON;
+        }
+        else if(toReturn.value == "Rules")
+        {
+            toReturn.type = RULES;
+        }
+        else if(toReturn.value == "Terminals")
+        {
+            toReturn.value = TERMINALS;
         }
     }
     else
