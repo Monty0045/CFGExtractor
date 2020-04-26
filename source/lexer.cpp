@@ -35,7 +35,7 @@ std::string InputBuffer::getChar()
     else    //characters present in input buffer
     {
        toReturn = inputs[inputs.size()-1]; //gets last element
-       inputs.pop_back();                         //decreases vector by 1
+       inputs.pop_back();                  //decreases vector by 1
     }
     
     return toReturn;
@@ -160,39 +160,50 @@ Lexer::Token Lexer::getToken()
         toReturn.value = "";
     }
 
-    
-    //Perhaps call consumeSpace here?
     consumeSpace();
 
-    string valueofToken;
-
-    if(isAlphaNum()) 
+    if(isAlphaNum()) //Incase of ID (Rules/Tokens defined in grammer) or EPSILON
     {
         //int line_num = cin.
         toReturn.value = getId();
         toReturn.type = ID;
         toReturn.line_num;
+
+
+        if(toReturn.value = "EPSILON")
+        {
+            toReturn.type = EPSILON;
+        }
     }
     else
     {
         std::string inputChar = buffer->getChar();
+        toReturn.line_num = line_num;
+        toReturn.value = inputChar;
+
         switch(inputChar)
         {
             case ",":
-                toReturn.value = ",";
                 toReturn.type = COMMA;
-                toReturn.line_num = line_num;
                 break;
             case "{":
-                toReturn.value = "{";
                 toReturn.type = LEFTCURL;
-                toReturn.line_num = line_num;
                 break;
-            case "{":
-                toReturn.value = "{";
-                toReturn.type = LEFTCURL;
-                toReturn.line_num = line_num;
-                break;    
+            case "}":
+                toReturn.type = RIGHTCURL;
+                break;
+            case "|":
+                toReturn.type = LINE;
+                break;
+            case ";":
+                toReturn.type = SEMICOLON;
+                break;
+            case "EOF":
+                toReturn.type = END_OF_FILE;
+                break;
+            default:
+                toReturn.type = ERROR;
+                break;   
         }
         
     }
