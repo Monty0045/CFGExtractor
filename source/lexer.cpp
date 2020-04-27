@@ -144,6 +144,25 @@ bool Lexer::isAlphaNum()
     
 }
 
+/*
+    2return true if next two symbols in input buffer form an Arrow ( -> )
+*/
+bool Lexer::isArrow()
+{
+    bool isArrow = false;
+
+    std::string possibleDash = buffer->getChar();
+    if(possibleDash == "-")
+    {
+        std::string possibleGreaterThan = buffer->getChar();
+        if(possibleGreaterThan == ">") isArrow = true;
+        buffer->ungetChar(possibleGreaterThan);
+    }
+    buffer->ungetChar(possibleDash);
+
+    return isArrow;
+}
+
 
 void Lexer::consumeSpace()
 {
@@ -218,6 +237,15 @@ Lexer::Token Lexer::getToken()
             toReturn.value = TERMINALS;
         }
     }
+    else if(isArrow())
+    {
+        std::string inputChars = buffer->getChar();
+        inputChars = inputChars + buffer->getChar();
+
+        toReturn.value = inputChars;
+        toReturn.type = ARROW;
+        toReturn.line_num = line_num;
+    }
     else
     {
         std::string inputChar = buffer->getChar();
@@ -232,7 +260,6 @@ Lexer::Token Lexer::getToken()
         else if(inputChar == ";") toReturn.type = SEMICOLON;
         else if(inputChar == "EOF") toReturn.type = END_OF_FILE;
         else toReturn.type = ERROR; //unrecognized symbol
-        
         
     }
     

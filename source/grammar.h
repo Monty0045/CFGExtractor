@@ -11,7 +11,7 @@ class Grammar
 {
     private:
 
-        Lexer* lexer;
+        Lexer* lexer = new Lexer();
         /*
             parser methods, implemented in parser.cpp
         */
@@ -25,6 +25,9 @@ class Grammar
         void parse_terminal_ruleList();
         void parse_terminal_rule();
         void parse_terminal_rhs_list();
+        void syntax_error(int);
+        Token expect_token(TokenType);
+        Token peek_token();
 
 
 

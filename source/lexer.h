@@ -27,6 +27,16 @@ public:
 
 
 
+enum TokenType {ID = 0, COMMA, ARROW, LEFTCURL, RIGHTCURL, LINE, SEMICOLON, ERROR, EPSILON, END_OF_FILE, RULES, TERMINALS};
+
+ //Token which are the different logical segments of input
+typedef struct Token
+{
+    std::string value;
+    TokenType type;
+    int line_num;
+
+}Token;
 
 /*
 Lexer
@@ -37,7 +47,7 @@ Lexer
 class Lexer
 {
 
-    enum TokenType {ID = 0, COMMA, LEFTCURL, RIGHTCURL, LINE, SEMICOLON, ERROR, EPSILON, END_OF_FILE, RULES, TERMINALS};
+    
 
     struct Token;
     InputBuffer* buffer;
@@ -48,17 +58,9 @@ class Lexer
     std::string getID();
     bool isSpace();
     bool isAlphaNum();
+    bool isArrow();
 
 public:
-
-    //Token which are the different logical segments of input
-    typedef struct Token
-    {
-        std::string value;
-        TokenType type;
-        int line_num;
-
-    }Token;
     
     Lexer();
     ~Lexer();
