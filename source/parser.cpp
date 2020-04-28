@@ -32,7 +32,7 @@ void Grammar::syntax_error(int lineNum = -1)
 Token Grammar::peek_token()
 {
     Token toReturn = lexer->getToken();
-    lexer->ungetToken(toReturn);        //adds Token back into input buffer, however copy still available
+    lexer->ungetToken(toReturn);        //adds Token back into token buffer, however copy still available
     return toReturn;
 }
 
@@ -113,7 +113,7 @@ void Grammar::parse_ruleList()
     parse_rule();
 
     Token t = peek_token();
-    if(t.type == ID)
+    if(t.type == ID)        //if an ID is seen then safe to assume it is the name of another rule
     {
         parse_ruleList();
     }
@@ -124,6 +124,104 @@ void Grammar::parse_ruleList()
 void Grammar::parse_rule()
 {
     //rule -> ID ARROW rhsList SEMICOLON
+    Token ruleToken = expect_token(ID);
+    expect_token(ARROW);
+    parse_rhsList();
+    expect_token(SEMICOLON);
+
+}
+
+void Grammar::parse_rhsList()
+{
+    //rhsList -> rhs
+    //rhsList -> rhs LINE rhsList
+    parse_rhs();
+
+    Token possLine = peek_token();
+    if(possLine.type == LINE)
+    {
+        expect_token(LINE);
+        parse_rhsList();
+    }
+}
+
+
+
+void Grammar::parse_rhs()
+{
+    //rhs -> ID
+    //rhs -> ID rhs
+
+    expect_token(ID);           //either the name of a rule or terminal
+
+    Token token = peek_token();
+    if(token.type == ID)
+    {
+        parse_rhs();
+    }
+
+}
+
+
+void Grammar::parse_terminalRules()
+{
+    //terminalRules -> TERMINALS LEFTCURL terminal_ruleList RIGHTCURL
+
+    expect_token(TERMINALS);
+    expect_token(LEFTCURL);
+    
+    parse_terminal_ruleList();
+
+    expect_token(RIGHTCURL);
+
+}
+
+
+void Grammar::parse_terminal_ruleList()
+{
+    //terminal_ruleList -> terminal_rule
+    //terminal_ruleList -> terminal_rule terminal_ruleList
+
+    parse_terminal_rule();
+
+    Token token = peek_token();
+    if(token.type == ID)
+    {
+        parse_terminal_ruleList();
+    }
+
+
+}
+
+
+void Grammar::parse_terminal_rule()
+{
+    //terminal_rule -> ID ARROW term_rhsList SEMICOLON
+
+    expect_token(ID);
+    expect_token(ARROW);
+
+    parse_terminal_rhsList();
+
+    expect_token(SEMICOLON);
+}
+
+
+void Grammar::parse_terminal_rhsList()
+{
+    //terminal_rhsList -> rhs
+    //terminal_rhsList -> rhs LINE terminal_rhsList
+    //terminal_rhsList -> rhs COMMA terminal_rhsList
+
+    parse_rhs();
+
+    Token t = peek_token();
+    if(t.type == LINE || t.type == COMMA)
+    {
+        t = lexer.getToken();       //actually consumes the LINE or COMMA
+        parse_terminal_rhsList();
+    }
+
 }
 
 

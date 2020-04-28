@@ -54,7 +54,7 @@ std::string InputBuffer::getChar()
             return "\n";
         }
 
-        //cout << int(tempChar) << " the character" << endl;
+    
         toReturn = toReturn + tempChar;
 
     }
@@ -167,7 +167,6 @@ bool Lexer::isArrow()
 void Lexer::consumeSpace()
 {
     std::string inputChar = buffer->getChar();
-    //std::string newLineString = "" + (char)10;
 
     while(inputChar == " " || inputChar == "\n")
     {
@@ -217,7 +216,7 @@ Lexer::Token Lexer::getToken()
 
     if(isAlphaNum()) //Incase of ID (Rules/Terminals defined in grammer) or EPSILON
     {
-        //int line_num = cin.
+
         toReturn.value = getID();
         toReturn.type = ID;
         toReturn.line_num = line_num;
