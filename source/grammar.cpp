@@ -69,6 +69,46 @@ void Grammar::printSymbols()
 
 }
 
+/*
+    Prints the rules of a grammar along with their RHS
+*/
+void Grammar::printRules()
+{
 
+    for(int i = 2; i < universe.size(); i++)
+    {
+        element* currentElem = universe[i];
+
+        if(!currentElem->isTerminal)        //if current element is a nonterminal
+        {
+            cout << currentElem->value << " -> ";
+            printRHS(&(currentElem->rhs));
+            cout << endl;
+        }
+    }
+
+}
+
+/*
+    Given the RHS of a rule it will output all the different RHS's seperated by | character
+    @param address of RHS of a nonterminal which is stored as a 2-dimensional integer vector
+*/
+void Grammar::printRHS(vector< vector<int>> * rhsList)
+{
+    //iterates through list of different RHS's
+    for(int i = (*rhsList).size() - 1; i >= 0; i--) //goes in reverse because rhs's added in reverse
+    {
+        if(i < ((*rhsList).size()-1)) cout << " |";                         //if multiple rhs options
+
+        vector<int> currentRHS = (*rhsList)[i];
+        for(int j = 0; j < currentRHS.size(); j++)      //iterates through elements appearing on current rhs
+        {
+            element* elemOnRHS = getElement(currentRHS[j]);
+
+            cout << " " << elemOnRHS->value; 
+        }
+
+    }
+}
 
 

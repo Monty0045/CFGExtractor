@@ -89,6 +89,30 @@ int Grammar::elementLookup(std::string name)
     return index;
 }
 
+
+/*
+    Used when getting the RHS of a rule and applying it to said rule. Since nonterminal can appear
+    multiple times simply setting rhs is not enough and must be appended to present rhs.
+    @param address of element's rhs, address of new rhs to be appended
+
+*/
+void Grammar::combineRHS(vector< vector<int>>* original, vector< vector<int>>* newRHS)
+{
+
+    //okay so I lied there is going to be a copy having to be generated in order
+    //for the ordering of rules to be the same as what the user inputs            
+
+    for(int i = 0; i < (*original).size(); i++)
+    {
+        //Since we want everything in reverse we actually add the original to the later new rhs
+        (*newRHS).push_back( (*original)[i] );
+
+    }
+
+    (*original) = (*newRHS); //sets element's original rhs to equal this new one with everything
+}
+
+
 /*
     Given the input file with a defined CFG, will parse and return the created Grammar object.
 
@@ -180,7 +204,17 @@ void Grammar::parse_rule()
 
 
     expect_token(ARROW);
-    ruleElement->rhs = parse_rhsList();
+
+    //appends parsed rhs to currentRule RHS
+    //  This is because multiple occurences of lhs nonterminal can appear throughout
+    //  the defined grammar and you don't want to reset it. I use addresses here because
+    //  passing by value two 2-dimensional vectors felt gross.
+    vector< vector<int> > newRHS = parse_rhsList();
+
+    combineRHS( &(ruleElement->rhs) , &newRHS );
+
+    //ruleElement->rhs = parse_rhsList();
+
     expect_token(SEMICOLON);
 
 }
@@ -326,7 +360,14 @@ void Grammar::parse_terminal_rule()
 
     expect_token(ARROW);
 
-    currentRule->rhs = parse_terminal_rhsList();
+    //appends parsed rhs to currentRule RHS
+    //  This is because multiple occurences of lhs nonterminal can appear throughout
+    //  the defined grammar and you don't want to reset it. I use addresses here because
+    //  passing by value two 2-dimensional vectors felt gross. 
+    vector< vector<int> > newRHS = parse_terminal_rhsList();
+    combineRHS( &(currentRule->rhs) , &(newRHS) );
+
+    //currentRule->rhs.push_back(parse_terminal_rhsList());
 
     expect_token(SEMICOLON);
 }
