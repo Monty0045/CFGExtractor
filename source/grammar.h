@@ -9,9 +9,26 @@
 
 class Grammar
 {
+
     private:
 
+
+       //Element which is either a rule or Terminal of the grammar.
+        struct element
+        {
+            string value; 
+            bool isTerminal = true;
+            vector< vector <int> > rhs;        //list of right hand sides, each rhs will be indexes of elements in Grammar's universe
+        };
+
+        vector<element*> universe;              //every terminal/rule element is stored here (including epsilon and $)
+        bool isAmbigious;
+        bool predictiveParser;
+
         Lexer* lexer;
+
+        vector<Token>
+
         /*
             parser methods, implemented in parser.cpp
         */

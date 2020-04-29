@@ -38,7 +38,7 @@ Token Grammar::peek_token()
 
 /*
     @param Expected type of next token
-    @return Token with that type, otherwise syntax error is thrown here
+    @return Token with that type, otherwise syntax error is thrown and program exits
 */
 Token Grammar::expect_token(TokenType expectedType)
 {
@@ -49,6 +49,44 @@ Token Grammar::expect_token(TokenType expectedType)
     //cout << "This makes no sense..." << endl;
     //cout << toCheck.value << " " << toCheck.type << " "<< expectedType << endl;
     syntax_error(toCheck.line_num);
+}
+
+
+/*
+    @param name of ID which is either a rule or terminal in grammar
+    @return index of that element in grammar's universe
+
+*/
+int Grammar::elementLookup(std::string name)
+{
+    bool isFound = false;
+    int index;
+
+    //first 2 elements of grammar are automatically epsilon and $
+    for(int i = 2; i < universe.size(); i++)
+    {
+
+        if(universe[i]->value == name)
+        {
+            isFound = true;
+            index = i;
+            break;
+        }
+
+    }
+
+    //if not found we will need to create a new element.
+    if(isFound == false)
+    {
+        element* newElement = new element;
+        newElement->value = name;
+        newElement->isTerminal = true;  //by default new elements are terminals
+        newElement->rhs = {};
+        universe.push_back(newElement);
+        index = universe.size() - 1;    //index of new element
+    }
+
+    return index;
 }
 
 /*
