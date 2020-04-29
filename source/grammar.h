@@ -47,7 +47,7 @@ class Grammar
         void syntax_error(int);
         Token expect_token(TokenType);
         Token peek_token();
-
+        int elementLookup(std::string);
 
 
     public:
