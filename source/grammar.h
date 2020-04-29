@@ -22,7 +22,7 @@ class Grammar
             std::vector< std::vector <int> > rhs;        //list of right hand sides, each rhs will be indexes of elements in Grammar's universe
         };
 
-        std::vector<element*> universe;              //every terminal/rule element is stored here (including epsilon and $)
+        std::vector<element*> universe;              //every terminal/rule element is stored here (including $ and epsilon)
         bool isAmbigious;
         bool predictiveParser;
 
@@ -38,7 +38,7 @@ class Grammar
         void parse_ruleSection();
         void parse_ruleList();
         void parse_rule();
-        void parse_rhsList();
+        std::vector< std::vector<int>> parse_rhsList();
         std::vector<int> parse_rhs();
         std::vector<int>* parse_rhs(std::vector<int>*); //overloaded to handle recursive case easier
         void parse_terminalRules();
@@ -57,10 +57,10 @@ class Grammar
         */
         element* getElement(int);
 
-
     public:
 
         void parse();
+        void printSymbols();
         Grammar();
 
 

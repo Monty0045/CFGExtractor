@@ -171,21 +171,33 @@ void Grammar::parse_rule()
 {
     //rule -> ID ARROW rhsList SEMICOLON
     Token ruleToken = expect_token(ID);
+
+    int indexOfElem = elementLookup(ruleToken.value);
+    element* ruleElement = getElement(indexOfElem);
+    ruleElement->value = ruleToken.value;
+    ruleElement->isTerminal = false;
+    ruleElement->isTerminalRule = false;
+
+
     expect_token(ARROW);
-    parse_rhsList();
+    ruleElement->rhs = parse_rhsList();
     expect_token(SEMICOLON);
 
 }
 
-void Grammar::parse_rhsList()
+/*
+    @return vector of all right hand side's of a rule, each rhs is also a vector of ints
+    corresponding to index in Grammar's universe of symbols
+*/
+vector< vector<int>> Grammar::parse_rhsList()
 {
     //rhsList -> rhs
     //rhsList -> rhs LINE rhsList
-    parse_rhs();
+    vector<int> rhs = parse_rhs();
 
     Token possLine = peek_token();
 
-    
+    vector< vector<int> > allRHSs = {};
 
     if(possLine.type == LINE)
     {
@@ -196,8 +208,12 @@ void Grammar::parse_rhsList()
             syntax_error(test.line_num);
         }
 
-        parse_rhsList();
+        allRHSs = parse_rhsList();
     }
+
+    allRHSs.push_back(rhs);
+
+    return allRHSs;
 }
 
 /*
@@ -302,11 +318,15 @@ void Grammar::parse_terminal_rule()
 
     Token t = expect_token(ID);
     int indexOfElement = elementLookup(t.value);
-    //get element from universe here
+
+    //Set properties of current terminal rule
+    element* currentRule = getElement(indexOfElement);
+    currentRule->isTerminal = false;
+    currentRule->isTerminalRule = true;
 
     expect_token(ARROW);
 
-    parse_terminal_rhsList();
+    currentRule->rhs = parse_terminal_rhsList();
 
     expect_token(SEMICOLON);
 }
@@ -364,6 +384,8 @@ vector<int> Grammar::parse_terminal_rhs()
     element* rhsElem = getElement(indexOfElem);
 
     //TODO: This check may be best handled elsewhere later down the line. Decide.
+    //       This is because if a 'terminal' is declared here which happens to be a rule
+    //       later it wouldn't catch this.
     if(!rhsElem->isTerminal)    //if the rhs which should be a Terminal is a rule...
     {
         cout << "Error: Reference to a rule within 'Terminals' right hand side." << endl;
