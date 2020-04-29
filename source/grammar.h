@@ -18,6 +18,7 @@ class Grammar
         {
             std::string value; 
             bool isTerminal = true;
+            bool isTerminalRule =  false;                  //used for some semantic checking
             std::vector< std::vector <int> > rhs;        //list of right hand sides, each rhs will be indexes of elements in Grammar's universe
         };
 
@@ -43,12 +44,18 @@ class Grammar
         void parse_terminalRules();
         void parse_terminal_ruleList();
         void parse_terminal_rule();
-        void parse_terminal_rhsList();
-        void parse_terminal_rhs();
+        std::vector< std::vector<int> > parse_terminal_rhsList();
+        std::vector<int> parse_terminal_rhs();
         void syntax_error(int);
         Token expect_token(TokenType);
         Token peek_token();
         int elementLookup(std::string);
+
+
+        /*
+            
+        */
+        element* getElement(int);
 
 
     public:

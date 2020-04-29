@@ -298,7 +298,12 @@ void Grammar::parse_terminal_rule()
 {
     //terminal_rule -> ID ARROW term_rhsList SEMICOLON
 
-    expect_token(ID);
+    //TODO : Return element and set values accordingly
+
+    Token t = expect_token(ID);
+    int indexOfElement = elementLookup(t.value);
+    //get element from universe here
+
     expect_token(ARROW);
 
     parse_terminal_rhsList();
@@ -306,14 +311,19 @@ void Grammar::parse_terminal_rule()
     expect_token(SEMICOLON);
 }
 
-
-void Grammar::parse_terminal_rhsList()
+/*
+    @return A vector of the different RHS's of a terminal only rule. Each rhs is a vector with index of corresponding symbol in universe
+*/
+vector< vector<int> > Grammar::parse_terminal_rhsList()
 {
     //terminal_rhsList -> rhs
     //terminal_rhsList -> rhs LINE terminal_rhsList
     //terminal_rhsList -> rhs COMMA terminal_rhsList
 
-    parse_terminal_rhs();
+    //TODO: Consider making this more efficient instead of copying a potentionally really large matrix over and over 
+
+    vector<int> rhs = parse_terminal_rhs();
+    vector< vector<int> > listOfRHS = {};
 
     Token t = peek_token();
     if(t.type == LINE || t.type == COMMA)
@@ -325,16 +335,43 @@ void Grammar::parse_terminal_rhsList()
             syntax_error(t.line_num);
         }
 
-        parse_terminal_rhsList();
+        listOfRHS = parse_terminal_rhsList();
     }
+
+    listOfRHS.push_back(rhs);   //order in which rules get added doesn't actually matter but rules end up getting applied in reverse
+
+    return listOfRHS;
 
 }
 
-void Grammar::parse_terminal_rhs()
+/*
+    @return a vector of one element which is the index of the corresponding symbol in grammar's universe
+*/
+vector<int> Grammar::parse_terminal_rhs()
 {
     //terminal_rhs -> ID
 
-    expect_token(ID);
+    //Terminal rules and regular rules are structurally same object only terminal rules have additional..
+    //logic checks applied to them. Even though any given singular rhs will only have 1 element, it still needs to..
+    //be a vector.
+
+    //TODO: Apply logic check to ensure none of the terminals here were previous rules.
+
+    Token token = expect_token(ID);
+    int indexOfElem = elementLookup(token.value);   //index of found/created element in universe
+    vector<int> rhs = {indexOfElem};
+
+    element* rhsElem = getElement(indexOfElem);
+
+    //TODO: This check may be best handled elsewhere later down the line. Decide.
+    if(!rhsElem->isTerminal)    //if the rhs which should be a Terminal is a rule...
+    {
+        cout << "Error: Reference to a rule within 'Terminals' right hand side." << endl;
+        syntax_error(token.line_num);   
+    }
+
+    return rhs;
+
 }
 
 
