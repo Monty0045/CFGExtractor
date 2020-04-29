@@ -200,9 +200,11 @@ void Grammar::parse_rhsList()
     }
 }
 
-
-
-void Grammar::parse_rhs()
+/*
+    Parses the rhs of a rule, if more then a single element it will be called recursively.
+    @return vector of indexes of corresponding symbols in grammar's universe
+*/
+vector<int> Grammar::parse_rhs()
 {
     //rhs -> ID
     //rhs -> EPSILON
@@ -213,16 +215,50 @@ void Grammar::parse_rhs()
     if(token.type == EPSILON)
     {
         lexer->getToken();      //consumes EPSILON
-        return;
+        vector<int> justEps = {1};
+        return justEps;
     }
 
-    expect_token(ID);           //either the name of a rule or terminal
+    vector<int> rhs = {};
+
+    Token t = expect_token(ID);           //either the name of a rule or terminal
+    int indexInUni = elementLookup(t.value);
+    rhs.push_back(indexInUni);
 
     token = peek_token();
     if(token.type == ID)
     {
-        parse_rhs();
+        rhs = (* parse_rhs(&rhs));
     }
+
+    return rhs;
+
+}
+
+
+/*
+    Overloaded version of parse_rhs(), used when multiple elements in a rule's rhs. All calls should call parse_rhs().
+    @param vector of indexes corresponding to symbols in universe. This is only used to make recursion easier, initially should be empty
+    @return vector of indexes of corresponding symbols in grammar's universe
+*/
+vector<int>* Grammar::parse_rhs(vector<int>* rhs)
+{
+    //rhs -> ID
+    
+    //rhs -> ID rhs
+
+
+    Token t = expect_token(ID);           //either the name of a rule or terminal
+    int indexInUni = elementLookup(t.value);
+    rhs->push_back(indexInUni);
+
+    Token token = peek_token();
+    if(token.type == ID)
+    {
+        rhs = parse_rhs(rhs);
+    }
+
+    return rhs;
 
 }
 
