@@ -43,8 +43,11 @@ Token Grammar::peek_token()
 Token Grammar::expect_token(TokenType expectedType)
 {
     Token toCheck = lexer->getToken();
+
     if(toCheck.type == expectedType) return toCheck;
 
+    //cout << "This makes no sense..." << endl;
+    //cout << toCheck.value << " " << toCheck.type << " "<< expectedType << endl;
     syntax_error(toCheck.line_num);
 }
 
@@ -63,6 +66,7 @@ void Grammar::parse_grammar()
     //grammar -> rules
 
     parse_rules();
+    expect_token(END_OF_FILE);  //by now all of input should've been consumed
 }
 
 void Grammar::parse_rules()
@@ -75,9 +79,10 @@ void Grammar::parse_rules()
     parse_ruleSection();
 
     Token t = peek_token();
-
+    
     if(t.type == TERMINALS)
     {
+        
         parse_terminalRules();
     }
 
@@ -91,12 +96,14 @@ void Grammar::parse_ruleSection()
 
     Token t = peek_token();
 
+
     if(t.type == RULES)
     {
         expect_token(RULES);
         expect_token(LEFTCURL);
         parse_ruleList();
         expect_token(RIGHTCURL);
+        
     }
     else
     {
@@ -112,12 +119,13 @@ void Grammar::parse_ruleList()
 
     parse_rule();
 
+
     Token t = peek_token();
+    
     if(t.type == ID)        //if an ID is seen then safe to assume it is the name of another rule
     {
         parse_ruleList();
     }
-    
 
 }
 
@@ -138,9 +146,18 @@ void Grammar::parse_rhsList()
     parse_rhs();
 
     Token possLine = peek_token();
+
+    
+
     if(possLine.type == LINE)
     {
-        expect_token(LINE);
+        Token test = lexer->getToken();
+
+        if(test.type != LINE) //this is redundent but just a sanity check
+        {
+            syntax_error(test.line_num);
+        }
+
         parse_rhsList();
     }
 }
@@ -150,11 +167,20 @@ void Grammar::parse_rhsList()
 void Grammar::parse_rhs()
 {
     //rhs -> ID
+    //rhs -> EPSILON
     //rhs -> ID rhs
+
+    Token token = peek_token();
+
+    if(token.type == EPSILON)
+    {
+        lexer->getToken();      //consumes EPSILON
+        return;
+    }
 
     expect_token(ID);           //either the name of a rule or terminal
 
-    Token token = peek_token();
+    token = peek_token();
     if(token.type == ID)
     {
         parse_rhs();
@@ -213,15 +239,28 @@ void Grammar::parse_terminal_rhsList()
     //terminal_rhsList -> rhs LINE terminal_rhsList
     //terminal_rhsList -> rhs COMMA terminal_rhsList
 
-    parse_rhs();
+    parse_terminal_rhs();
 
     Token t = peek_token();
     if(t.type == LINE || t.type == COMMA)
     {
-        t = lexer.getToken();       //actually consumes the LINE or COMMA
+        t = lexer->getToken();       //actually consumes the LINE or COMMA
+
+        if(t.type != LINE && t.type != COMMA) //this is redundent but just a sanity check
+        {
+            syntax_error(t.line_num);
+        }
+
         parse_terminal_rhsList();
     }
 
+}
+
+void Grammar::parse_terminal_rhs()
+{
+    //terminal_rhs -> ID
+
+    expect_token(ID);
 }
 
 

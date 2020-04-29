@@ -26,6 +26,7 @@ class Grammar
         void parse_terminal_ruleList();
         void parse_terminal_rule();
         void parse_terminal_rhsList();
+        void parse_terminal_rhs();
         void syntax_error(int);
         Token expect_token(TokenType);
         Token peek_token();

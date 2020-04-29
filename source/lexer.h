@@ -10,6 +10,7 @@
 
 #pragma once
 
+
 /*
 Input Buffer
     Class handles getting characters from input file
@@ -29,14 +30,16 @@ public:
 
 enum TokenType {ID = 0, COMMA, ARROW, LEFTCURL, RIGHTCURL, LINE, SEMICOLON, ERROR, EPSILON, END_OF_FILE, RULES, TERMINALS};
 
+
  //Token which are the different logical segments of input
-typedef struct Token
+struct Token
 {
     std::string value;
     TokenType type;
     int line_num;
 
-}Token;
+};
+
 
 /*
 Lexer
@@ -47,9 +50,7 @@ Lexer
 class Lexer
 {
 
-    
 
-    struct Token;
     InputBuffer* buffer;
     int line_num = 1;
     std::vector<Token> tokenList;

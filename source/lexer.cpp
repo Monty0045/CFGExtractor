@@ -42,7 +42,6 @@ std::string InputBuffer::getChar()
     {
         if(cin.eof())
         {
-        
             return "EOF";
         }
 
@@ -51,6 +50,7 @@ std::string InputBuffer::getChar()
 
         if( int(tempChar) == 10 || int(tempChar) == 0) //if new line character, or null charcter (FIGURE OUT WHY THIS HAPPENS)
         {
+            
             return "\n";
         }
 
@@ -82,6 +82,7 @@ bool InputBuffer::isEndOfFile()
 {
     if(inputs.size() > 0)
     {
+        //cout << inputs.size() << " size of inputs buffer" << endl;
         if(inputs[inputs.size() - 1] == "EOF") return true;
         return false;
     }
@@ -188,10 +189,18 @@ void Lexer::consumeSpace()
     @return Token from the input file denoting a sort of logical 'segment'
 
 */
-Lexer::Token Lexer::getToken()
+Token Lexer::getToken()
 {
     //string valuesFromInput;
     Token toReturn;
+
+    //if tokenList has something in it already return last added item
+    if(tokenList.size() > 0)
+    {
+        toReturn = tokenList[tokenList.size() - 1];
+        tokenList.pop_back();
+        return toReturn;
+    }
 
 
     consumeSpace();
@@ -205,15 +214,6 @@ Lexer::Token Lexer::getToken()
         return toReturn;
     }
 
-    //if still tokens that were given back then return most recent
-    if(tokenList.size() > 0)
-    {
-        toReturn = tokenList[tokenList.size() - 1];
-        tokenList.pop_back();
-        return toReturn;
-    }
-
-
     if(isAlphaNum()) //Incase of ID (Rules/Terminals defined in grammer) or EPSILON
     {
 
@@ -221,9 +221,8 @@ Lexer::Token Lexer::getToken()
         toReturn.type = ID;
         toReturn.line_num = line_num;
 
-
         //This handles the three reserved words defined in program
-        if(toReturn.value == "EPSILON")
+        if(toReturn.value == "EPSILON" || toReturn.value == "epsilon")
         {
             toReturn.type = EPSILON;
         }
@@ -233,7 +232,7 @@ Lexer::Token Lexer::getToken()
         }
         else if(toReturn.value == "Terminals")
         {
-            toReturn.value = TERMINALS;
+            toReturn.type = TERMINALS;
         }
     }
     else if(isArrow())
@@ -262,6 +261,8 @@ Lexer::Token Lexer::getToken()
         
     }
     
+    //cout << toReturn.value << " <- Token value" <<endl;
+
     return toReturn;
 
 }
