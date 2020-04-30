@@ -64,13 +64,14 @@ class Grammar
 
 
         /*
-            
+            Misc helper/simple methods
         */
+        void resolveNonTerminal(element* nonTerminal);
         element* getElement(int);
         void printRHS(std::vector< std::vector<element*>>*);
         int getElemIndex(element*);
 
-
+        //removing useless symbols from grammar.
         void removeUselessSyms();
         void getGenSymbols();
         bool isRHSGen(std::vector<bool>, std::vector<element*>);
@@ -85,6 +86,7 @@ class Grammar
 
     public:
         void parse();
+        void generateString();
         void printSymbols();
         void printRules();
         Grammar();

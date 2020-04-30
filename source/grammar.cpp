@@ -1,4 +1,6 @@
 #include "grammar.h"
+#include "stdlib.h"
+#include "time.h"
 
 using namespace std;
 
@@ -37,6 +39,52 @@ Grammar::element* Grammar::getElement(int index)
 
     return toReturn;
 }
+
+/*
+    Generates string recognized by CFG
+*/
+void Grammar::generateString()
+{
+    srand(time(NULL));
+
+    cout << "\nGenerating string within this language: \n" << endl;
+
+    resolveNonTerminal(universe[2]);    //calls helper function beginning at start symbol.
+
+    cout << endl;
+
+}
+
+/*
+    Helper function for generateString(), given a nonTerminal element will resolve and print the corresponding
+    sequence of terminals.
+    @param nonTerminal to print terminals of
+
+*/
+void Grammar::resolveNonTerminal(element* nonTerminal)
+{
+
+    //chooses pseudo random rhs rule application of nonTerminal
+    int numOfRHSs = nonTerminal->rhsList.size();
+    int indexOfRHS = rand() % numOfRHSs + 1;
+    int index = indexOfRHS - 1;                 //had to shift this way otherwise previous line would have div by 0
+    vector<element*> rhs = nonTerminal->rhsList[index];
+
+    for(int i = 0; i < rhs.size(); i++)
+    {
+        element* currentElem = rhs[i];
+        if(currentElem->isTerminal)     //if current element on rhs is a terminal
+        {
+            cout << " " << currentElem->value << " ";
+        }
+        else    //another nonTerminal present
+        {
+            resolveNonTerminal(currentElem);
+        }
+        
+    }
+}
+
 
 /*
     This method is a helper function for some logic such as getting generating symbols
@@ -437,3 +485,10 @@ void Grammar::removeUnreachSyms(vector<bool> reachable)
 }
 
 
+/*
+    ------------------------------------------
+
+
+
+    ------------------------------------------
+*/
