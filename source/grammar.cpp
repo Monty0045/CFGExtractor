@@ -134,6 +134,28 @@ void Grammar::printRHS(vector< vector<element*>> * rhsList)
     }
 }
 
+
+
+/*
+    ---------------------------------------------------------
+
+    Logic dealing with removing useless symbols from grammar
+
+    ---------------------------------------------------------
+
+*/
+
+/*
+    Will update universe to contain only useful symbols in grammar.
+    If none present, program will exit.
+*/
+void Grammar::removeUselessSyms()
+{
+    getGenSymbols();
+
+    getReachableSyms();
+}
+
 /*
     Removes Useless symbols from grammar's universe. Useless symbols are symbols that either never end or are unreachable.
 
@@ -330,7 +352,7 @@ vector<bool> Grammar::iniReachableSyms()
 {
     vector<bool> reachable(universe.size());
 
-    if(universe.size() >= 2)
+    if(universe.size() > 2)
     { 
         reachable[2] = true;
         for(int i = 0; i < reachable.size(); i++)
@@ -413,3 +435,5 @@ void Grammar::removeUnreachSyms(vector<bool> reachable)
 
     universe = newUniverse;
 }
+
+

@@ -171,8 +171,8 @@ void Grammar::parse()
     //Semantic checks now applied as well as understanding properties of this grammar.
     terminalCheck();
 
-    getGenSymbols();
-    getReachableSyms();
+    removeUselessSyms();
+
 
 }
 
