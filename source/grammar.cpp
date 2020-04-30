@@ -39,6 +39,27 @@ Grammar::element* Grammar::getElement(int index)
 }
 
 /*
+    This method is a helper function for some logic such as getting generating symbols
+    @param element to get index in universe
+    @return index of input element in grammar's universe
+*/
+int Grammar::getElemIndex(Grammar::element* element)
+{
+    int index = -1;
+
+    for(int i = 0; i < universe.size(); i++)
+    {
+        if(universe[i] == element)
+        {
+            index = i;
+            break;
+        }
+    }
+
+    return index;
+}
+
+/*
     Prints the symbols in the Grammar's universe. First prints the rules then the terminals
 */
 void Grammar::printSymbols()
@@ -117,8 +138,238 @@ void Grammar::printRHS(vector< vector<element*>> * rhsList)
     Removes Useless symbols from grammar's universe. Useless symbols are symbols that either never end or are unreachable.
 
 */
-void Grammar::iniGenSyms()
+vector<bool> Grammar::iniGenSyms()
 {
+    vector<bool> genArray(universe.size());
+
+    genArray[0] = false;        //$ used later, will be ignored but not considered generating.
+    genArray[1] = true;        //EPSILON, which is generating since it is a terminal
+    for(int i = 2; i < universe.size(); i++)
+    {
+        if(universe[i]->isTerminal)
+        {
+            genArray[i] = true;
+        }
+        else genArray[i] = false;
+    }
+
+    return genArray;
+}
+
+void Grammar::getGenSymbols()
+{
+    bool change = false;
+
+    vector<bool> genArray = iniGenSyms();
+
+    //loops through grammar, for symbol to be generating only 1 rhs must be generating
+    //  however ALL elements on that right hand side must be generating.
+    do {
+
+        change = false;
+
+        for(int i = 2; i < universe.size(); i++)
+        {
+            element* currentElem = universe[i];
+            if(!currentElem->isTerminal)        //if current element is a nonTerminal
+            {
+                for(int j = 0; j < currentElem->rhsList.size(); j++)    //iterates over the different RHS
+                {
+                    vector<element*> rhs = currentElem->rhsList[j];
+
+                    if(isRHSGen(genArray, rhs))  //if rhs is generating then whole symbol is
+                    {
+                        if(genArray[i] == false)    //if current symbol is set as nonGen
+                        {
+                            change = true;
+                            genArray[i] = true;
+                        }
+                    }
+                }
+            }
+        }
+    }while(change);
+
+    //Removes nongenerating RHS's from grammar
+    //  since I group rules together with their different RHS, some RHSs may be nongenerating
+    //  but LHS still is generating.
+    removeNonGenRHS(genArray);
+
+
+    //Removes nongenerating LHS's (nonterminals) from grammar
+    removeNonGenSym(genArray);
 
 }
 
+
+/*
+    Helper method for getGenSymbols
+    @param genArray is a bool vector corresponding to whether symbols in universe of Grammar are generating, rhs is the right hand side of a rule
+    @return whether a given rhs of a nonTerminal is generating
+*/
+bool Grammar::isRHSGen(vector<bool> genArray, 
+                       vector<Grammar::element*> rhs){
+    bool isGen = true;
+
+    for(int i = 0; i < rhs.size(); i++)
+    {
+        int index = getElemIndex(rhs[i]);
+        if(!genArray[index])               //if current element in rhs is NOT generating
+        {
+            isGen = false;
+        }
+    }
+
+    return isGen;
+
+}
+
+/*
+    Helper method to getGenSymbols, this should only be called after generating nonTerminals have been determined
+
+    @param vector of generating symbols that was calculated in getGenSymbols()
+
+*/
+void Grammar::removeNonGenRHS(vector<bool> genArray)
+{
+    for(int i = 2; i < universe.size(); i++)    //iterates through symbols
+    {
+        element* currentElem = universe[i];
+        if(!currentElem->isTerminal)        //nonTerminal
+        {
+            vector< vector<element*>> newRHSList = {};
+            for(int j = 0; j < currentElem->rhsList.size(); j++) //iterates through RHS
+            {
+                vector<element*> rhs = currentElem->rhsList[j];
+                if(isRHSGen(genArray, rhs))   //if RHS of nonTerminal is generating
+                {
+                    
+                    //currentElem->rhsList.erase( currentElem->rhsList.begin() + j);  //removes the nongenerating rhs from currentElem
+                    newRHSList.push_back(rhs);
+                }
+            }
+            currentElem->rhsList = newRHSList;
+        }
+    }
+}
+
+/*
+    Helper method of getGenSymbols(), removes non generating LHS (Nonterminals) from universe
+    @param vector of generating symbol values as calculated in getGenSymbols()
+*/  
+void Grammar::removeNonGenSym(vector<bool> genArray)
+{
+
+    //instead of actual deletion of current universe elements, will just change universe
+
+    vector<element*> newUniverse = {};
+    newUniverse.push_back(universe[0]);
+    newUniverse.push_back(universe[1]);
+
+    for(int i = 2; i < universe.size(); i++)
+    {
+        element* currentElem = universe[i];
+        if(!currentElem->isTerminal && !genArray[i])    //if currentElem is both nonTerminal and nonGenerating
+        {
+            delete currentElem;
+
+            //universe.erase(universe.begin() + i);   //resizes the universe
+        }
+        else
+        {
+            newUniverse.push_back(universe[i]);
+        }
+        
+    }
+
+    universe = newUniverse;
+}
+
+/*
+    Used to get only usefule symbols in grammar. Requires that getGenSymbols() has already ran. After
+    running only symbols which can be reached from start variable (first nonterminal) will be present in
+    grammar.
+*/
+void Grammar::getReachableSyms()
+{   
+    vector<bool> reachable = iniReachableSyms();    //initial boolean vector corresponding to reachable symbols in grammar's universe.
+
+    bool change = false;
+
+    do{
+
+        for(int i = 2; i < universe.size(); i++)
+        {
+            element* currentElem = universe[i];
+
+            if(!currentElem->isTerminal && reachable[i])    //if currentElem is a nonTerminal and is reachable
+            {
+
+            }
+        }
+
+    }while(change);
+
+
+}
+
+/*
+    Helper function for getReachableSyms()
+    @return bool vector corresponding to symbols in universe of whether they are reachable (only start variable)
+*/
+vector<bool> Grammar::iniReachableSyms()
+{
+    vector<bool> reachable(universe.size());
+
+    if(universe.size >= 2)
+    { 
+        reachable[2] = true;
+        for(int i = 0; i < reachable.size(); i++)
+        {
+            if(i == 2)
+            {
+                reachable[2] = true;
+            }
+            else
+            {
+                reachable[i] = false;
+            }
+            
+        }
+    }
+    else
+    {
+        cout << "No longer any symbols even in the grammar. Nothing really interesting can happen now.\n";
+        cout << "Exiting the program" << endl;
+        exit(1);
+    }
+
+    return reachable;
+    
+}
+
+/*
+    Helper function of getReachableSyms(), called on the rhs of a reachable rule. If a nonreachable nonTerminal is present updates
+    the value of that symbol in reachable vector. NOTE: reachable is being updating outside of this scope
+    @param vector of bools correpsonding to symbols in universe reachability
+    @param the rhs of a reachable rule
+    @return whether a nonreachable symbol has been updated in rhs to reachable
+*/
+bool Grammar::unreachPresentInRHS(vector<bool> * reachable, 
+                                  vector<element*> rhs)
+{
+
+    bool changed = false;
+
+    for(int i = 0; i < rhs.size(); i++)
+    {
+        element* currentElem = rhs[i];
+        int indexInUni = getElemIndex(currentElem);
+        //TODO: Do I need to do terminals as well?
+        //if(!currentElem->isTerminal && !(*reachable)[indexInUni])  //if element is nonTerminal and not reachable 
+        if(!(*reachable)[indexInUni])
+        {
+            
+        }
+    }
+}

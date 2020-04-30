@@ -18,6 +18,7 @@ class Grammar
         {
             std::string value; 
             bool isTerminal = true;
+            //bool isTerminal;
             bool isTerminalRule =  false;                  //used for some semantic checking
             bool genTerminals = false;                     //whether a nonTerminal generates terminals
             std::vector< std::vector <element*> > rhsList = {};        //list of right hand sides, each rhs will be indexes of elements in Grammar's universe
@@ -67,16 +68,22 @@ class Grammar
         */
         element* getElement(int);
         void printRHS(std::vector< std::vector<element*>>*);
+        int getElemIndex(element*);
 
 
         void removeUselessSyms();
         void getGenSymbols();
+        bool isRHSGen(std::vector<bool>, std::vector<element*>);
         void getReachableSyms();
-        void iniGenSyms();
-        void iniReachSyms();
+        void removeNonGenRHS(std::vector<bool>);
+        void removeNonGenSym(std::vector<bool>);
+        std::vector<bool> iniGenSyms();
+        std::vector<bool> iniReachableSyms();
+        bool unreachPresentInRHS(std::vector<bool> *, 
+                                 std::vector<element*>);
+
 
     public:
-
         void parse();
         void printSymbols();
         void printRules();

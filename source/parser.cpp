@@ -171,6 +171,8 @@ void Grammar::parse()
     //Semantic checks now applied as well as understanding properties of this grammar.
     terminalCheck();
 
+    getGenSymbols();
+
 }
 
 void Grammar::parse_grammar()
@@ -424,7 +426,7 @@ void Grammar::parse_terminal_rule()
 }
 
 /*
-    @return A vector of the different RHS's of a terminal only rule. Each rhs is a vector with index of corresponding symbol in universe
+    @return A vector of the different RHS's of a terminal only rule. Each rhs is a pointer to a symbol in present in universe of symbols
 */
 vector< vector<Grammar::element*> > Grammar::parse_terminal_rhsList()
 {
