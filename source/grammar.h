@@ -22,14 +22,10 @@ class Grammar
             bool isTerminalRule =  false;                  //used for some semantic checking
             bool genTerminals = false;                     //whether a nonTerminal generates terminals
             std::vector< std::vector <element*> > rhsList = {};        //list of right hand sides, each rhs will be indexes of elements in Grammar's universe
-            
-            //First and follow sets used to tell if grammar has predictive parser
-            std::vector<element*> FIRST = {};
-            std::vector<element*> FOLLOW  = {};
 
         };
 
-        std::vector<element*> universe;              //every terminal/rule element is stored here (including $ and epsilon)
+        std::vector<element*> symbols;              //every terminal/rule element is stored here (including $ and epsilon)
         bool isAmbigious;
         bool predictiveParser;
 
@@ -72,6 +68,8 @@ class Grammar
         int getElemIndex(element*);
 
         //removing useless symbols from grammar.
+        //needed for generating strings in language
+            //implemented in grammar.cpp
         void removeUselessSyms();
         void getGenSymbols();
         bool isRHSGen(std::vector<bool>, std::vector<element*>);
@@ -83,6 +81,8 @@ class Grammar
         bool unreachPresentInRHS(std::vector<bool> *, 
                                  std::vector<element*>);
         void removeUnreachSyms(std::vector<bool>);
+
+        //
 
     public:
         void parse();
