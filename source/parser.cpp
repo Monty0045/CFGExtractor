@@ -280,6 +280,7 @@ vector< vector<Grammar::element*>> Grammar::parse_rhsList()
 {
     //rhsList -> rhs
     //rhsList -> rhs LINE rhsList
+    //rhsList -> rhs LINE EPSILON
     vector<element*> rhs = parse_rhs();
 
     Token possLine = peek_token();
@@ -295,7 +296,15 @@ vector< vector<Grammar::element*>> Grammar::parse_rhsList()
             syntax_error(test.line_num);
         }
 
-        allRHSs = parse_rhsList();
+        test = peek_token();
+        if(test.type == EPSILON)
+        {
+            lexer->getToken();      //consumes EPSILON
+            allRHSs = {{symbols[1]}};
+        }
+        else{
+            allRHSs = parse_rhsList();
+        }
     }
 
     allRHSs.push_back(rhs);
@@ -310,17 +319,18 @@ vector< vector<Grammar::element*>> Grammar::parse_rhsList()
 vector<Grammar::element*> Grammar::parse_rhs()
 {
     //rhs -> ID
-    //rhs -> EPSILON
     //rhs -> ID rhs
 
     Token token = peek_token();
 
+    /*
     if(token.type == EPSILON)
     {
         lexer->getToken();      //consumes EPSILON
         vector<element*> justEps = {symbols[1]};
         return justEps;
     }
+    */
 
     vector<element*> rhs = {};
 

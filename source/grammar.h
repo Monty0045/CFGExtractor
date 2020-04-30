@@ -89,6 +89,7 @@ class Grammar
         void convertToChomsky();
         std::vector<element*> iniChomsky();
         void removeEPSILONrhs();
+        bool removeEPSILON(element*);
         void removeUnitRules();
         void convertRulesCNF();
 

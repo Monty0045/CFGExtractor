@@ -17,7 +17,7 @@ void Grammar::convertToChomsky()
 }
 
 
-vector<element*> Grammar::iniChomsky()
+vector<Grammar::element*> Grammar::iniChomsky()
 {
     vector<element*> newSymbols = {};
 
@@ -52,9 +52,51 @@ vector<element*> Grammar::iniChomsky()
 */
 void Grammar::removeEPSILONrhs()
 {
+    for(int i = 2; i < symbols.size(); i++)
+    {
+        element* currentElem = symbols[i];
 
+        if(!currentElem->isTerminal)
+        {
+            bool wasEpPresent = false;
+
+            wasEpPresent = removeEPSILON(currentElem);
+
+
+            //iterates through RHSs looking for EPSILONS
+            /*
+            for(int j = 0; j < currentElem->rhsList.size(); j++)
+            {
+                wasEpPresent = removeEPSILON(currentElem);
+            }
+            */
+
+        }
+
+    }
 }
 
+
+bool Grammar::removeEPSILON(Grammar::element* currentElem)
+{
+    vector< vector<element*> > newRHSList = {};
+    bool wasEpPresent = false;
+
+    for(int i = 0; i < currentElem->rhsList.size(); i++)
+    {
+        if(currentElem->rhsList[i][0] == symbols[1]) //if current RHS is EPSILON
+        {
+            wasEpPresent = true;
+        }
+        else
+        {
+            newRHSList.push_back(currentElem->rhsList[i]);
+        }
+        
+    }
+
+    return wasEpPresent;
+}
 
 void Grammar::removeUnitRules()
 {
@@ -63,5 +105,5 @@ void Grammar::removeUnitRules()
 
 void Grammar::convertRulesCNF()
 {
-    
+
 }
