@@ -57,10 +57,11 @@ Token Grammar::expect_token(TokenType expectedType)
     @return index of that element in grammar's universe
 
 */
-int Grammar::elementLookup(std::string name)
+Grammar::element* Grammar::elementLookup(std::string name)
 {
+    element* toReturn;
     bool isFound = false;
-    int index;
+    //int index;
 
     //first 2 elements of grammar are automatically epsilon and $
     for(int i = 2; i < universe.size(); i++)
@@ -69,7 +70,7 @@ int Grammar::elementLookup(std::string name)
         if(universe[i]->value == name)
         {
             isFound = true;
-            index = i;
+            toReturn = universe[i];
             break;
         }
 
@@ -78,15 +79,15 @@ int Grammar::elementLookup(std::string name)
     //if not found we will need to create a new element.
     if(isFound == false)
     {
-        element* newElement = new element;
-        newElement->value = name;
-        newElement->isTerminal = true;  //by default new elements are terminals
-        newElement->rhsList = {};
-        universe.push_back(newElement);
-        index = universe.size() - 1;    //index of new element
+        toReturn = new element;
+        toReturn->value = name;
+        toReturn->isTerminal = true;  //by default new elements are terminals
+        toReturn->rhsList = {};
+        universe.push_back(toReturn);
+        //index = universe.size() - 1;    //index of new element
     }
 
-    return index;
+    return toReturn;
 }
 
 
@@ -96,8 +97,8 @@ int Grammar::elementLookup(std::string name)
     @param address of element's rhs, address of new rhs to be appended
 
 */
-void Grammar::combineRHS(vector< vector<int>>* original, 
-                         vector< vector<int>>* newRHS)
+void Grammar::combineRHS(vector< vector<Grammar::element*>>* original, 
+                         vector< vector<Grammar::element*>>* newRHS)
 {
 
     //okay so I lied there is going to be a copy having to be generated in order
@@ -134,14 +135,14 @@ void Grammar::terminalCheck()
     Helper method for terminalCheck()
     Makes sure all items on RHS of a terminal rule is in fact a terminal.
 */
-void Grammar::terminalRHSCheck(vector< vector<int> > * rhsList)
+void Grammar::terminalRHSCheck(vector< vector<Grammar::element*> > * rhsList)
 {
     for(int i = 0; i < (*rhsList).size(); i++)
     {
-        vector<int> rhs = (*rhsList)[i];
+        vector<element*> rhs = (*rhsList)[i];
         for(int j = 0; j < rhs.size(); j++) //this should just be 1 item but may change grammar and this would accomodate
         {
-            element* rhsItem = getElement(rhs[j]);
+            element* rhsItem = rhs[j];
             if(!rhsItem->isTerminal)
             {
                 cout << "NonTerminal declared on RHS of Terminal rule!!" << endl;
@@ -246,8 +247,8 @@ void Grammar::parse_rule()
     //rule -> ID ARROW rhsList SEMICOLON
     Token ruleToken = expect_token(ID);
 
-    int indexOfElem = elementLookup(ruleToken.value);
-    element* ruleElement = getElement(indexOfElem);
+    element* ruleElement = elementLookup(ruleToken.value);
+    //element* ruleElement = getElement(indexOfElem);
     ruleElement->value = ruleToken.value;
     ruleElement->isTerminal = false;
     ruleElement->isTerminalRule = false;
@@ -259,7 +260,7 @@ void Grammar::parse_rule()
     //  This is because multiple occurences of lhs nonterminal can appear throughout
     //  the defined grammar and you don't want to reset it. I use addresses here because
     //  passing by value two 2-dimensional vectors felt gross.
-    vector< vector<int> > newRHS = parse_rhsList();
+    vector< vector<element*> > newRHS = parse_rhsList();
 
     combineRHS( &(ruleElement->rhsList) , &newRHS );
 
@@ -273,15 +274,15 @@ void Grammar::parse_rule()
     @return vector of all right hand side's of a rule, each rhs is also a vector of ints
     corresponding to index in Grammar's universe of symbols
 */
-vector< vector<int>> Grammar::parse_rhsList()
+vector< vector<Grammar::element*>> Grammar::parse_rhsList()
 {
     //rhsList -> rhs
     //rhsList -> rhs LINE rhsList
-    vector<int> rhs = parse_rhs();
+    vector<element*> rhs = parse_rhs();
 
     Token possLine = peek_token();
 
-    vector< vector<int> > allRHSs = {};
+    vector< vector<element*> > allRHSs = {};
 
     if(possLine.type == LINE)
     {
@@ -304,7 +305,7 @@ vector< vector<int>> Grammar::parse_rhsList()
     Parses the rhs of a rule, if more then a single element it will be called recursively.
     @return vector of indexes of corresponding symbols in grammar's universe
 */
-vector<int> Grammar::parse_rhs()
+vector<Grammar::element*> Grammar::parse_rhs()
 {
     //rhs -> ID
     //rhs -> EPSILON
@@ -315,15 +316,15 @@ vector<int> Grammar::parse_rhs()
     if(token.type == EPSILON)
     {
         lexer->getToken();      //consumes EPSILON
-        vector<int> justEps = {1};
+        vector<element*> justEps = {universe[1]};
         return justEps;
     }
 
-    vector<int> rhs = {};
+    vector<element*> rhs = {};
 
     Token t = expect_token(ID);           //either the name of a rule or terminal
-    int indexInUni = elementLookup(t.value);
-    rhs.push_back(indexInUni);
+    element* newElem = elementLookup(t.value);
+    rhs.push_back(newElem);
 
     token = peek_token();
     if(token.type == ID)
@@ -341,7 +342,7 @@ vector<int> Grammar::parse_rhs()
     @param vector of indexes corresponding to symbols in universe. This is only used to make recursion easier, initially should be empty
     @return vector of indexes of corresponding symbols in grammar's universe
 */
-vector<int>* Grammar::parse_rhs(vector<int>* rhs)
+vector<Grammar::element * >* Grammar::parse_rhs(vector<Grammar::element*>* rhs)
 {
     //rhs -> ID
     
@@ -349,8 +350,8 @@ vector<int>* Grammar::parse_rhs(vector<int>* rhs)
 
 
     Token t = expect_token(ID);           //either the name of a rule or terminal
-    int indexInUni = elementLookup(t.value);
-    rhs->push_back(indexInUni);
+    element* newElem = elementLookup(t.value);
+    rhs->push_back(newElem);
 
     Token token = peek_token();
     if(token.type == ID)
@@ -401,12 +402,12 @@ void Grammar::parse_terminal_rule()
     //TODO : Return element and set values accordingly
 
     Token t = expect_token(ID);
-    int indexOfElement = elementLookup(t.value);
+    element* currentElement = elementLookup(t.value);
 
     //Set properties of current terminal rule
-    element* currentRule = getElement(indexOfElement);
-    currentRule->isTerminal = false;
-    currentRule->isTerminalRule = true;
+    //element* currentRule = getElement(indexOfElement);
+    currentElement->isTerminal = false;
+    currentElement->isTerminalRule = true;
 
     expect_token(ARROW);
 
@@ -414,8 +415,8 @@ void Grammar::parse_terminal_rule()
     //  This is because multiple occurences of lhs nonterminal can appear throughout
     //  the defined grammar and you don't want to reset it. I use addresses here because
     //  passing by value two 2-dimensional vectors felt gross. 
-    vector< vector<int> > newRHS = parse_terminal_rhsList();
-    combineRHS( &(currentRule->rhsList) , &(newRHS) );
+    vector< vector<element*> > newRHS = parse_terminal_rhsList();
+    combineRHS( &(currentElement->rhsList) , &(newRHS) );
 
     //currentRule->rhs.push_back(parse_terminal_rhsList());
 
@@ -425,7 +426,7 @@ void Grammar::parse_terminal_rule()
 /*
     @return A vector of the different RHS's of a terminal only rule. Each rhs is a vector with index of corresponding symbol in universe
 */
-vector< vector<int> > Grammar::parse_terminal_rhsList()
+vector< vector<Grammar::element*> > Grammar::parse_terminal_rhsList()
 {
     //terminal_rhsList -> rhs
     //terminal_rhsList -> rhs LINE terminal_rhsList
@@ -433,8 +434,8 @@ vector< vector<int> > Grammar::parse_terminal_rhsList()
 
     //TODO: Consider making this more efficient instead of copying a potentionally really large matrix over and over 
 
-    vector<int> rhs = parse_terminal_rhs();
-    vector< vector<int> > listOfRHS = {};
+    vector<element*> rhs = parse_terminal_rhs();
+    vector< vector<element*> > listOfRHS = {};
 
     Token t = peek_token();
     if(t.type == LINE || t.type == COMMA)
@@ -458,7 +459,7 @@ vector< vector<int> > Grammar::parse_terminal_rhsList()
 /*
     @return a vector of one element which is the index of the corresponding symbol in grammar's universe
 */
-vector<int> Grammar::parse_terminal_rhs()
+vector<Grammar::element*> Grammar::parse_terminal_rhs()
 {
     //terminal_rhs -> ID
 
@@ -469,10 +470,10 @@ vector<int> Grammar::parse_terminal_rhs()
     //TODO: Apply logic check to ensure none of the terminals here were previous rules.
 
     Token token = expect_token(ID);
-    int indexOfElem = elementLookup(token.value);   //index of found/created element in universe
-    vector<int> rhs = {indexOfElem};
+    element* newElem = elementLookup(token.value);   //index of found/created element in universe
+    vector<element*> rhs = {newElem};
 
-    element* rhsElem = getElement(indexOfElem);
+    //element* rhsElem = getElement(indexOfElem);
 
 
     return rhs;

@@ -20,7 +20,12 @@ class Grammar
             bool isTerminal = true;
             bool isTerminalRule =  false;                  //used for some semantic checking
             bool genTerminals = false;                     //whether a nonTerminal generates terminals
-            std::vector< std::vector <int> > rhsList = {};        //list of right hand sides, each rhs will be indexes of elements in Grammar's universe
+            std::vector< std::vector <element*> > rhsList = {};        //list of right hand sides, each rhs will be indexes of elements in Grammar's universe
+            
+            //First and follow sets used to tell if grammar has predictive parser
+            std::vector<element*> FIRST = {};
+            std::vector<element*> FOLLOW  = {};
+
         };
 
         std::vector<element*> universe;              //every terminal/rule element is stored here (including $ and epsilon)
@@ -39,29 +44,36 @@ class Grammar
         void parse_ruleSection();
         void parse_ruleList();
         void parse_rule();
-        std::vector< std::vector<int>> parse_rhsList();
-        std::vector<int> parse_rhs();
-        std::vector<int>* parse_rhs(std::vector<int>*); //overloaded to handle recursive case easier
+        std::vector< std::vector<element*>> parse_rhsList();
+        std::vector<element*> parse_rhs();
+        std::vector<element*>* parse_rhs(std::vector<element*>*); //overloaded to handle recursive case easier
         void parse_terminalRules();
         void parse_terminal_ruleList();
         void parse_terminal_rule();
-        std::vector< std::vector<int> > parse_terminal_rhsList();
-        std::vector<int> parse_terminal_rhs();
+        std::vector< std::vector<element*> > parse_terminal_rhsList();
+        std::vector<element*> parse_terminal_rhs();
         void syntax_error(int);
         Token expect_token(TokenType);
         Token peek_token();
-        int elementLookup(std::string);
-        void combineRHS(std::vector< std::vector<int>>*, 
-                        std::vector< std::vector<int>> *);
+        element* elementLookup(std::string);
+        void combineRHS(std::vector< std::vector<element*>>*, 
+                        std::vector< std::vector<element*>> *);
         void terminalCheck();
-        void terminalRHSCheck(std::vector< std::vector<int> >*);
+        void terminalRHSCheck(std::vector< std::vector<element*> >*);
 
 
         /*
             
         */
         element* getElement(int);
-        void printRHS(std::vector< std::vector<int>>*);
+        void printRHS(std::vector< std::vector<element*>>*);
+
+
+        void removeUselessSyms();
+        void getGenSymbols();
+        void getReachableSyms();
+        void iniGenSyms();
+        void iniReachSyms();
 
     public:
 

@@ -25,6 +25,7 @@ Grammar::Grammar()
     @param index of element within grammar's universe
     @return pointer to the element, if no element with given index returns NULL
 */
+//TODO: Assuming my refactoring works this function is obsolete
 Grammar::element* Grammar::getElement(int index)
 {
     element* toReturn = NULL;       //Null if not within universe
@@ -93,17 +94,18 @@ void Grammar::printRules()
     Given the RHS of a rule it will output all the different RHS's seperated by | character
     @param address of RHS of a nonterminal which is stored as a 2-dimensional integer vector
 */
-void Grammar::printRHS(vector< vector<int>> * rhsList)
+void Grammar::printRHS(vector< vector<element*>> * rhsList)
 {
     //iterates through list of different RHS's
     for(int i = (*rhsList).size() - 1; i >= 0; i--) //goes in reverse because rhs's added in reverse
     {
         if(i < ((*rhsList).size()-1)) cout << " |";                         //if multiple rhs options
 
-        vector<int> currentRHS = (*rhsList)[i];
+        vector<element*> currentRHS = (*rhsList)[i];
         for(int j = 0; j < currentRHS.size(); j++)      //iterates through elements appearing on current rhs
         {
-            element* elemOnRHS = getElement(currentRHS[j]);
+            element* elemOnRHS = currentRHS[j];
+            //element* elemOnRHS = getElement(currentRHS[j]);
 
             cout << " " << elemOnRHS->value; 
         }
@@ -111,4 +113,12 @@ void Grammar::printRHS(vector< vector<int>> * rhsList)
     }
 }
 
+/*
+    Removes Useless symbols from grammar's universe. Useless symbols are symbols that either never end or are unreachable.
+
+*/
+void Grammar::iniGenSyms()
+{
+
+}
 
