@@ -297,19 +297,28 @@ void Grammar::getReachableSyms()
     bool change = false;
 
     do{
-
+        change = false;
         for(int i = 2; i < universe.size(); i++)
         {
             element* currentElem = universe[i];
 
             if(!currentElem->isTerminal && reachable[i])    //if currentElem is a nonTerminal and is reachable
             {
+                for(int j = 0; j < currentElem->rhsList.size(); j++)
+                {
+                    vector<element*> rhs = currentElem->rhsList[j];
 
+                    if(unreachPresentInRHS(&reachable, rhs))
+                    {
+                        change = true;
+                    }
+                }
             }
         }
 
     }while(change);
 
+    removeUnreachSyms(reachable);
 
 }
 
@@ -321,7 +330,7 @@ vector<bool> Grammar::iniReachableSyms()
 {
     vector<bool> reachable(universe.size());
 
-    if(universe.size >= 2)
+    if(universe.size() >= 2)
     { 
         reachable[2] = true;
         for(int i = 0; i < reachable.size(); i++)
@@ -369,7 +378,38 @@ bool Grammar::unreachPresentInRHS(vector<bool> * reachable,
         //if(!currentElem->isTerminal && !(*reachable)[indexInUni])  //if element is nonTerminal and not reachable 
         if(!(*reachable)[indexInUni])
         {
-            
+            (*reachable)[indexInUni] = true;
+            changed = true;
         }
     }
+
+    return changed;
+}
+
+
+/*
+    Helper function of getReachableSyms() called after reachable symbols have been calculated.
+    Updates universe to only include reachable nonTerminals.
+*/
+void Grammar::removeUnreachSyms(vector<bool> reachable)
+{
+    vector<element*> newUniverse;
+    newUniverse.push_back(universe[0]);
+    newUniverse.push_back(universe[1]);
+
+    for(int i = 2; i < universe.size(); i++)
+    {
+        element* currentElem = universe[i];
+        if(reachable[i])
+        {
+            newUniverse.push_back(currentElem);
+        }
+        else
+        {
+            delete currentElem;
+        }
+        
+    }
+
+    universe = newUniverse;
 }

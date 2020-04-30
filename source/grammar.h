@@ -81,7 +81,7 @@ class Grammar
         std::vector<bool> iniReachableSyms();
         bool unreachPresentInRHS(std::vector<bool> *, 
                                  std::vector<element*>);
-
+        void removeUnreachSyms(std::vector<bool>);
 
     public:
         void parse();

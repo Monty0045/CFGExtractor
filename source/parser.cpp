@@ -172,6 +172,7 @@ void Grammar::parse()
     terminalCheck();
 
     getGenSymbols();
+    getReachableSyms();
 
 }
 
