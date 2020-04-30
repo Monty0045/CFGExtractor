@@ -72,7 +72,8 @@ class Grammar
             //implemented in grammar.cpp
         void removeUselessSyms();
         void getGenSymbols();
-        bool isRHSGen(std::vector<bool>, std::vector<element*>);
+        bool isRHSGen(std::vector<bool>, 
+                      std::vector<element*>);
         void getReachableSyms();
         void removeNonGenRHS(std::vector<bool>);
         void removeNonGenSym(std::vector<bool>);
@@ -82,7 +83,14 @@ class Grammar
                                  std::vector<element*>);
         void removeUnreachSyms(std::vector<bool>);
 
-        //
+
+        //conversion to chomsky normal form and operations that rely on it
+        //  implemented in chomskyAndCheck.cpp
+        void convertToChomsky();
+        std::vector<element*> iniChomsky();
+        void removeEPSILONrhs();
+        void removeUnitRules();
+        void convertRulesCNF();
 
     public:
         void parse();
