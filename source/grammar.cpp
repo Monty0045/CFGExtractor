@@ -11,13 +11,13 @@ Grammar::Grammar()
     element* dollar = new element;
     dollar->value = "$";
     dollar->isTerminal = true;
-    dollar->rhs = {};
+    dollar->rhsList = {};
     this->universe.push_back(dollar);
 
     element* epsilon = new element;
     epsilon->value = "EPSILON";
     epsilon->isTerminal = true;
-    epsilon->rhs = {};
+    epsilon->rhsList = {};
     this->universe.push_back(epsilon);
 }
 
@@ -82,7 +82,7 @@ void Grammar::printRules()
         if(!currentElem->isTerminal)        //if current element is a nonterminal
         {
             cout << currentElem->value << " -> ";
-            printRHS(&(currentElem->rhs));
+            printRHS(&(currentElem->rhsList));
             cout << endl;
         }
     }

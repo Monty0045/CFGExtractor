@@ -81,7 +81,7 @@ int Grammar::elementLookup(std::string name)
         element* newElement = new element;
         newElement->value = name;
         newElement->isTerminal = true;  //by default new elements are terminals
-        newElement->rhs = {};
+        newElement->rhsList = {};
         universe.push_back(newElement);
         index = universe.size() - 1;    //index of new element
     }
@@ -96,7 +96,8 @@ int Grammar::elementLookup(std::string name)
     @param address of element's rhs, address of new rhs to be appended
 
 */
-void Grammar::combineRHS(vector< vector<int>>* original, vector< vector<int>>* newRHS)
+void Grammar::combineRHS(vector< vector<int>>* original, 
+                         vector< vector<int>>* newRHS)
 {
 
     //okay so I lied there is going to be a copy having to be generated in order
@@ -113,6 +114,51 @@ void Grammar::combineRHS(vector< vector<int>>* original, vector< vector<int>>* n
 }
 
 
+
+/*
+    After parsing program this is called to ensure no nonTerminals are on RHS of terminal rules list
+
+*/
+void Grammar::terminalCheck()
+{
+    for(int i = 2; i < universe.size(); i++)
+    {
+        if(universe[i]->isTerminalRule)
+        {
+            terminalRHSCheck(&(universe[i]->rhsList));  //passes in the rhsList of current Terminal rule
+        }
+    }
+}
+
+/*
+    Helper method for terminalCheck()
+    Makes sure all items on RHS of a terminal rule is in fact a terminal.
+*/
+void Grammar::terminalRHSCheck(vector< vector<int> > * rhsList)
+{
+    for(int i = 0; i < (*rhsList).size(); i++)
+    {
+        vector<int> rhs = (*rhsList)[i];
+        for(int j = 0; j < rhs.size(); j++) //this should just be 1 item but may change grammar and this would accomodate
+        {
+            element* rhsItem = getElement(rhs[j]);
+            if(!rhsItem->isTerminal)
+            {
+                cout << "NonTerminal declared on RHS of Terminal rule!!" << endl;
+                cout << "The NonTerminal is: " << rhsItem->value << endl;
+                syntax_error();
+            }
+        }
+    }
+}
+
+/*
+    ---------------------------
+    PARSING METHODS
+    ---------------------------
+*/
+
+
 /*
     Given the input file with a defined CFG, will parse and return the created Grammar object.
 
@@ -120,8 +166,11 @@ void Grammar::combineRHS(vector< vector<int>>* original, vector< vector<int>>* n
 void Grammar::parse()
 {
     parse_grammar();
-}
 
+    //Semantic checks now applied as well as understanding properties of this grammar.
+    terminalCheck();
+
+}
 
 void Grammar::parse_grammar()
 {
@@ -129,6 +178,7 @@ void Grammar::parse_grammar()
 
     parse_rules();
     expect_token(END_OF_FILE);  //by now all of input should've been consumed
+
 }
 
 void Grammar::parse_rules()
@@ -211,7 +261,7 @@ void Grammar::parse_rule()
     //  passing by value two 2-dimensional vectors felt gross.
     vector< vector<int> > newRHS = parse_rhsList();
 
-    combineRHS( &(ruleElement->rhs) , &newRHS );
+    combineRHS( &(ruleElement->rhsList) , &newRHS );
 
     //ruleElement->rhs = parse_rhsList();
 
@@ -365,7 +415,7 @@ void Grammar::parse_terminal_rule()
     //  the defined grammar and you don't want to reset it. I use addresses here because
     //  passing by value two 2-dimensional vectors felt gross. 
     vector< vector<int> > newRHS = parse_terminal_rhsList();
-    combineRHS( &(currentRule->rhs) , &(newRHS) );
+    combineRHS( &(currentRule->rhsList) , &(newRHS) );
 
     //currentRule->rhs.push_back(parse_terminal_rhsList());
 
@@ -424,14 +474,6 @@ vector<int> Grammar::parse_terminal_rhs()
 
     element* rhsElem = getElement(indexOfElem);
 
-    //TODO: This check may be best handled elsewhere later down the line. Decide.
-    //       This is because if a 'terminal' is declared here which happens to be a rule
-    //       later it wouldn't catch this.
-    if(!rhsElem->isTerminal)    //if the rhs which should be a Terminal is a rule...
-    {
-        cout << "Error: Reference to a rule within 'Terminals' right hand side." << endl;
-        syntax_error(token.line_num);   
-    }
 
     return rhs;
 

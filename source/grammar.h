@@ -20,7 +20,7 @@ class Grammar
             bool isTerminal = true;
             bool isTerminalRule =  false;                  //used for some semantic checking
             bool genTerminals = false;                     //whether a nonTerminal generates terminals
-            std::vector< std::vector <int> > rhs = {};        //list of right hand sides, each rhs will be indexes of elements in Grammar's universe
+            std::vector< std::vector <int> > rhsList = {};        //list of right hand sides, each rhs will be indexes of elements in Grammar's universe
         };
 
         std::vector<element*> universe;              //every terminal/rule element is stored here (including $ and epsilon)
@@ -51,7 +51,10 @@ class Grammar
         Token expect_token(TokenType);
         Token peek_token();
         int elementLookup(std::string);
-        void combineRHS(std::vector< std::vector<int>>*, std::vector< std::vector<int>> *);
+        void combineRHS(std::vector< std::vector<int>>*, 
+                        std::vector< std::vector<int>> *);
+        void terminalCheck();
+        void terminalRHSCheck(std::vector< std::vector<int> >*);
 
 
         /*
