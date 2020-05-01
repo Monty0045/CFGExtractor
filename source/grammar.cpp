@@ -1,3 +1,7 @@
+/*
+    Written by Wyatt Turner for CSE 355 @ Arizona State University, Spring 2020, Dr. Ben Amor
+
+*/
 #include "grammar.h"
 #include "stdlib.h"
 #include "time.h"
@@ -45,9 +49,7 @@ Grammar::element* Grammar::getElement(int index)
 */
 void Grammar::generateString()
 {
-    srand(time(NULL));
-
-    cout << "\nGenerating string within this language: \n" << endl;
+    cout <<endl;
 
     resolveNonTerminal(symbols[2]);    //calls helper function beginning at start symbol.
 

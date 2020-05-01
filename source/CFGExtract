@@ -1,0 +1,12 @@
+grammar -> rules;
+rules -> RuleSection terminalRules;
+RuleSection -> RULES LEFTCURLBRACE rulesList RIGHTCURLBRACE | rulesList;
+rulesList -> rule | rule rulesList;                                        
+rule -> ID ARROW rhs SEMICOLON | ID ARROW rhs LINE rhsList SEMICOLON;
+rhsList -> rhs | rhs LINE rhsList | rhs LINE epsilonSym;
+rhs -> ID | ID rhs;
+terminalRules -> TERMINALS LEFTCURLBRACE terminalruleList RIGHTCURLBRACE | EPSILON;
+terminalruleList -> termrule | terminalrule terminalruleList;
+terminalrule -> ID ARROW terminalrhsList SEMICOLON;
+terminalrhsList -> terminalrhs | terminalrhs LINE termrhsList | terminalrhs COMMA terminalrhsList;
+terminalrhs -> ID;

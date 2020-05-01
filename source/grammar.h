@@ -1,3 +1,8 @@
+/*
+    Written by Wyatt Turner for CSE 355 @ Arizona State University
+    Spring 2020, Dr. Ben Amor
+*/
+
 
 #include <iostream>
 #include <string>
@@ -18,20 +23,15 @@ class Grammar
         {
             std::string value; 
             bool isTerminal = true;
-            //bool isTerminal;
             bool isTerminalRule =  false;                  //used for some semantic checking
-            bool genTerminals = false;                     //whether a nonTerminal generates terminals
             std::vector< std::vector <element*> > rhsList = {};        //list of right hand sides, each rhs will be indexes of elements in Grammar's universe
 
         };
 
         std::vector<element*> symbols;              //every terminal/rule element is stored here (including $ and epsilon)
-        bool isAmbigious;
-        bool predictiveParser;
 
         Lexer* lexer;
 
-        //std::vector<Token>;
 
         /*
             parser methods, implemented in parser.cpp
@@ -86,12 +86,14 @@ class Grammar
 
         //conversion to chomsky normal form and operations that rely on it
         //  implemented in chomskyAndCheck.cpp
+        /*
         void convertToChomsky();
         std::vector<element*> iniChomsky();
         void removeEPSILONrhs();
         bool removeEPSILON(element*);
         void removeUnitRules();
         void convertRulesCNF();
+        */
 
     public:
         void parse();
