@@ -1,3 +1,6 @@
+/*
+    Written by Wyatt Turner for CSE 355 @ Arizona State University, Spring 2020, Dr. Ben Amor
+*/
 
 #include "grammar.h"
 
@@ -10,7 +13,6 @@ using namespace std;
 */
 void Grammar::convertToChomsky()
 {
-    //vector<element*> newSymbols = iniChomsky();
     symbols = iniChomsky();
 
 
@@ -58,18 +60,13 @@ void Grammar::removeEPSILONrhs()
 
         if(!currentElem->isTerminal)
         {
-            bool wasEpPresent = false;
+            bool wasEpPresent = removeEPSILON(currentElem); //removes EPSILON from currentElem
 
-            wasEpPresent = removeEPSILON(currentElem);
-
-
-            //iterates through RHSs looking for EPSILONS
-            /*
-            for(int j = 0; j < currentElem->rhsList.size(); j++)
+            //now must go through all rules of Grammar and make copies of rhs where currentElem existed to version without
+            if(wasEpPresent)
             {
-                wasEpPresent = removeEPSILON(currentElem);
+                
             }
-            */
 
         }
 
@@ -82,7 +79,7 @@ bool Grammar::removeEPSILON(Grammar::element* currentElem)
     vector< vector<element*> > newRHSList = {};
     bool wasEpPresent = false;
 
-    for(int i = 0; i < currentElem->rhsList.size(); i++)
+    for(int i = 0; i < currentElem->rhsList.size(); i++)    //iterates through RHSs of currentElem
     {
         if(currentElem->rhsList[i][0] == symbols[1]) //if current RHS is EPSILON
         {
@@ -96,6 +93,14 @@ bool Grammar::removeEPSILON(Grammar::element* currentElem)
     }
 
     return wasEpPresent;
+}
+
+/*
+
+*/
+void Grammar::epCopier(element* wherePresent)
+{
+
 }
 
 void Grammar::removeUnitRules()
