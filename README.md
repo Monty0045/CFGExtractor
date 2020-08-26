@@ -36,6 +36,6 @@ Grammar defined in text file can have following form:
   
   ## Using Program
   *Note: This is a rather hackish program currently, only tested to run on my Linux Mint 20.04 machine.*
-  1. Run Make in CFGExtractor/source will output the binary.
+  1. Run make in directory CFGExtractor/source will output the binary.
   2. Run the binary with corresponding textfile from terminal. For example on binary 'a.out' and a textfile of name 'sentence':
       > ./a.out < sentence
