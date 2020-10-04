@@ -26,6 +26,7 @@ Grammar defined in text file can have following form
     }
     Terminals {
       terminalRule -> Everything | OnRHS | Is | A | Terminal;
+      terminalRule -> commas, also, allowed, here;
     }
     
     
