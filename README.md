@@ -3,8 +3,8 @@
 
 ### Context Free Grammar Extractor parses a definition of a context-free grammar from a text file and outputs 5 strings with in that language. Currently a proof of concept, further features such as seeing if a string is within a grammar and arbitrary outputs are desired.
 
-Grammar defined in text file can have following form:
-  Without 'Terminal Rules':
+Grammar defined in text file can have following form
+  (Without 'Terminal Rules'):
   
       Rules {
         rule -> TERMINAL otherrule alsoATerminal;
@@ -13,7 +13,7 @@ Grammar defined in text file can have following form:
       }
       
       
-  Alternative Version Without 'Terminal Rules':
+  Alternative Version (Without 'Terminal Rules'):
     
     rule -> TERMINAL otherrule alsoATerminal;
     rule -> thisRuleHasTwoRHS;
